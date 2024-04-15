@@ -1,0 +1,14 @@
+commands:
+  chat:
+    description: Chat with the large model
+
+    options:
+      help: Chat with the large model
+      reset: Reset the conversation
+      picture: Return a picture of the conversation
+
+    messages:
+      expect-prompt: What would you like to say to me?
+      loading: Querying, please wait...
+      reset-success: Conversation has been reset.
+      unknown-error: An unknown error occurred. Please try again later.

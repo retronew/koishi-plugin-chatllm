@@ -1,0 +1,49 @@
+{
+  "name": "koishi-plugin-chatllm",
+  "description": "chat with llm",
+  "version": "0.0.3",
+  "contributors": [
+    "Retronew <jkhaoqi110@gmail.com>"
+  ],
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "chatgpt",
+    "koishi",
+    "plugin",
+    "ai",
+    "llm"
+  ],
+  "peerDependencies": {
+    "koishi": "^4.17.4",
+    "koishi-plugin-puppeteer": "^3.8.4"
+  },
+  "koishi": {
+    "browser": true,
+    "description": {
+      "zh": "A ChatGPT robot that calls the official API.",
+      "en": "一个调用官方 API 的 ChatGPT 机器人插件"
+    },
+    "locales": [
+      "zh",
+      "en"
+    ]
+  },
+  "dependencies": {
+    "@types/uuid": "^9.0.8",
+    "highlight.js": "^11.9.0",
+    "markdown-it": "^14.1.0",
+    "openai": "^4.33.1",
+    "pangu": "^4.0.7",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14",
+    "@types/pangu": "^4"
+  }
+}
