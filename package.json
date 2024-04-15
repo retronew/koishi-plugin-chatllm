@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-chatllm",
   "description": "chat with llm",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "contributors": [
     "Retronew <jkhaoqi110@gmail.com>"
   ],

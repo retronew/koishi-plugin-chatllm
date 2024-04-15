@@ -1,10 +1,9 @@
 import fs from 'fs'
+import { resolve } from 'path'
 import { markdownRender } from './render'
 import { Context } from 'koishi'
-import { resolve } from 'path'
 
-export const renderImage = async (title: { content: string, sub: string }, message: string, ctx: Context): Promise<string> => {
-  const OpenAILogo = fs.readFileSync(resolve(__dirname, './assets/openai.svg'), 'utf8')
+export const renderImage = async (title: { content: string, sub: string }, message: string, logo: string, ctx: Context): Promise<string> => {
   const styleContent = fs.readFileSync(resolve(__dirname, './assets/tabler.min.css'), 'utf8')
   const codeStyleContent = fs.readFileSync(resolve(__dirname, './assets/atom-one-dark.css'), 'utf8')
 
@@ -33,7 +32,7 @@ export const renderImage = async (title: { content: string, sub: string }, messa
           </style>
           <div class="card" id="message">
             <div class="card-stamp">
-              <div class="card-stamp-icon bg-green" id="card-stamp-icon">${OpenAILogo}</div>
+              <div class="card-stamp-icon bg-green" id="card-stamp-icon">${logo}</div>
             </div>
             <div class="card-body">
               <h3 class="card-title">
