@@ -2,10 +2,22 @@ import fs from 'fs'
 import { resolve } from 'path'
 import { markdownRender } from './render'
 import { Context } from 'koishi'
+import { Config } from './llm'
 
-export const renderImage = async (title: { content: string, sub: string }, message: string, logo: string, ctx: Context): Promise<string> => {
-  const styleContent = fs.readFileSync(resolve(__dirname, './assets/tabler.min.css'), 'utf8')
-  const codeStyleContent = fs.readFileSync(resolve(__dirname, './assets/atom-one-dark.css'), 'utf8')
+export const renderImage = async (
+  title: string,
+  message: string,
+  ctx: Context,
+  config: Config
+): Promise<string> => {
+  const styleContent = fs.readFileSync(
+    resolve(__dirname, './assets/tabler.min.css'),
+    'utf8'
+  )
+  const codeStyleContent = fs.readFileSync(
+    resolve(__dirname, './assets/atom-one-dark.css'),
+    'utf8'
+  )
 
   const html = `
         <html>
@@ -13,7 +25,7 @@ export const renderImage = async (title: { content: string, sub: string }, messa
           <style>${codeStyleContent}</style>
           <style>
             body {
-              background-color: white;
+              background-color: transparent;
             }
             html, body {
               width: 500px;
@@ -32,12 +44,14 @@ export const renderImage = async (title: { content: string, sub: string }, messa
           </style>
           <div class="card" id="message">
             <div class="card-stamp">
-              <div class="card-stamp-icon bg-green" id="card-stamp-icon">${logo}</div>
+              <div class="card-stamp-icon bg-green" id="card-stamp-icon">${
+                config.pictureConfig?.logo
+              }</div>
             </div>
             <div class="card-body">
               <h3 class="card-title">
-                ${title.content}
-                ${title.sub ? `(<small>${title.sub}</small>)` : ''}
+                ${title}
+                ${config.model ? `(<small>${config.model}</small>)` : ''}
               </h3>
               <p class="text-secondary">${markdownRender(message)}</p>
             </div>

@@ -1,7 +1,6 @@
 import { Context, Schema, Logger, Session, SessionError, h } from 'koishi'
-import ChatGPT from './llm/chatgpt'
-import Kimi from './llm/kimi'
-import { } from 'koishi-plugin-puppeteer'
+import { ChatGPT, Kimi } from './llm'
+import {} from 'koishi-plugin-puppeteer'
 import { v4 as uuidv4 } from 'uuid'
 import { renderImage, renderText } from './template'
 import pangu from 'pangu'
@@ -63,12 +62,12 @@ export async function apply(ctx: Context, config: Config) {
   }
 
   const wrapperMessage = async (
-    title: { content: string; sub: string | undefined },
+    title: string,
     message: string,
-    logo: string,
-    pictureMode: boolean
+    pictureMode: boolean,
+    config: ChatGPT.Config | Kimi.Config
   ): Promise<any> => {
-    if (pictureMode) return renderImage(title, message, logo, ctx)
+    if (pictureMode) return renderImage(title, message, ctx, config)
 
     return renderText(message)
   }
@@ -106,19 +105,19 @@ export async function apply(ctx: Context, config: Config) {
         }
         const [tipMessageId] = await session.send(session.text('.loading'))
         const chat = llm[options?.llm || 'chatgpt']
-        const response = await chat.generateResponse({ message: input, config, conversationId })
+        const response = await chat.generateResponse({
+          message: input,
+          conversationId,
+        })
         conversations.set(key, { conversationId: response.conversationId })
         // revoke the loading tip message
         session.bot.deleteMessage(session.channelId, tipMessageId)
 
         const message = await wrapperMessage(
-          {
-            content: chat.constructor.name,
-            sub: chat.model,
-          },
+          chat.constructor.name,
           pangu.spacing(response.message),
-          chat.logo,
-          options?.picture || false
+          options?.picture || false,
+          chat.config
         )
 
         return `${h.quote(quoteId)}${message}`
