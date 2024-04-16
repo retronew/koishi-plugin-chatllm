@@ -53,11 +53,12 @@ export class BaseModel {
 
     const messages: History[] = historyEntry.history
 
-    if (this.config.parseImages) {
+    const images = extractImages(message)
+    if (this.config.parseImages && images.length) {
       messages.push({
         role: 'user',
         content: [
-          ...extractImages(message).map((i) => {
+          ...images.map((i) => {
             return {
               type: 'image_url' as const,
               image_url: {
