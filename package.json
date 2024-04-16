@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-chatllm",
   "description": "chat with llm",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "contributors": [
     "Retronew <jkhaoqi110@gmail.com>"
   ],
@@ -37,12 +37,14 @@
   "dependencies": {
     "@types/uuid": "^9.0.8",
     "highlight.js": "^11.9.0",
+    "is-color": "^1.0.2",
     "markdown-it": "^14.1.0",
     "openai": "^4.33.1",
     "pangu": "^4.0.7",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@types/is-color": "^1",
     "@types/markdown-it": "^14",
     "@types/pangu": "^4"
   }

@@ -1,5 +1,5 @@
 import { Context, Schema, Logger, Session, SessionError, h } from 'koishi'
-import { ChatGPT, Kimi } from './llm'
+import { ChatGPT, Kimi, Claude } from './llm'
 import {} from 'koishi-plugin-puppeteer'
 import { v4 as uuidv4 } from 'uuid'
 import { renderImage, renderText } from './template'
@@ -35,6 +35,7 @@ export const Config: Schema<Config> = Schema.intersect([
   }).description('全局配置'),
   ChatGPT.SchemaConfig,
   Kimi.SchemaConfig,
+  Claude.SchemaConfig,
 ])
 
 const conversations = new Map<string, { conversationId: string }>()
@@ -47,6 +48,7 @@ export async function apply(ctx: Context, config: Config) {
   const llm = {
     chatgpt: new ChatGPT(config),
     kimi: new Kimi(config),
+    claude: new Claude(config),
   }
 
   const getContextKey = (session: Session, config: Config) => {
@@ -65,7 +67,7 @@ export async function apply(ctx: Context, config: Config) {
     title: string,
     message: string,
     pictureMode: boolean,
-    config: ChatGPT.Config | Kimi.Config
+    config: ChatGPT.Config | Kimi.Config | Claude.Config
   ): Promise<any> => {
     if (pictureMode) return renderImage(title, message, ctx, config)
 
@@ -74,9 +76,10 @@ export async function apply(ctx: Context, config: Config) {
 
   ctx
     .command(config.triggerWord + ' <message:text>')
-    .option('llm', '-l <llm>', { fallback: 'chatgpt' })
+    .option('llm', '-l <value>', { fallback: 'chatgpt' })
     .option('llm', '--chatgpt', { value: 'chatgpt' })
     .option('llm', '--kimi', { value: 'kimi' })
+    .option('llm', '--claude', { value: 'claude' })
     .option('reset', '-r')
     .option('picture', '-p')
     .action(async ({ options, session }, input) => {
@@ -112,7 +115,7 @@ export async function apply(ctx: Context, config: Config) {
         conversations.set(key, { conversationId: response.conversationId })
         // revoke the loading tip message
         session.bot.deleteMessage(session.channelId, tipMessageId)
-
+        console.log(options?.picture, options?.llm)
         const message = await wrapperMessage(
           chat.constructor.name,
           pangu.spacing(response.message),

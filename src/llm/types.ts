@@ -32,7 +32,7 @@ export function extractPrefixConfig<T extends Record<string, any>>(
   config: T,
   prefix: string
 ): T {
-  const extractedConfig: any = Object.keys(config)
+  const extractedConfig: any = Object.keys(config || {})
     .filter((key) => key.startsWith(prefix) && key.length > prefix.length)
     .reduce((object, key) => {
       const keyWithoutPrefix = key.replace(prefix, '')

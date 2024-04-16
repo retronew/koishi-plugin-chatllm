@@ -1,10 +1,10 @@
 import { Schema } from 'koishi'
-import { BaseModel } from './base'
+import { BaseModel } from '../base'
 import {
   Config as BaseConfig,
   extractPrefixConfig,
   prefixConfig,
-} from './types'
+} from '../types'
 import fs from 'fs'
 import { resolve } from 'path'
 
@@ -12,7 +12,10 @@ class Kimi extends BaseModel {
   constructor(config: Kimi.Config) {
     const currentConfig = extractPrefixConfig(config, 'kimi')
     const pictureConfig = {
-      logo: fs.readFileSync(resolve(__dirname, '../assets/kimi.svg'), 'utf8'),
+      logo: fs.readFileSync(
+        resolve(__dirname, '../../assets/kimi.svg'),
+        'utf8'
+      ),
       logoColor: 'blue',
     }
     super({ ...currentConfig, pictureConfig })
@@ -37,7 +40,7 @@ namespace Kimi {
         endpoint: Schema.string()
           .default('https://api.moonshot.cn/v1')
           .description('API 请求地址。'),
-        model: Schema.string().default('kimi'),
+        model: Schema.string().default('kimi').description('模型名称。'),
         useSearch: Schema.boolean()
           .default(false)
           .description('是否使用搜索引擎来获取回答。'),

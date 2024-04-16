@@ -1,10 +1,10 @@
 import { Schema } from 'koishi'
-import { BaseModel } from './base'
+import { BaseModel } from '../base'
 import {
   Config as BaseConfig,
   prefixConfig,
   extractPrefixConfig,
-} from './types'
+} from '../types'
 import fs from 'fs'
 import { resolve } from 'path'
 
@@ -13,7 +13,7 @@ class ChatGPT extends BaseModel {
     const currentConfig = extractPrefixConfig(config, 'chatgpt')
     const pictureConfig = {
       logo: fs.readFileSync(
-        resolve(__dirname, '../assets/chatgpt.svg'),
+        resolve(__dirname, '../../assets/chatgpt.svg'),
         'utf8'
       ),
       logoColor: 'green',

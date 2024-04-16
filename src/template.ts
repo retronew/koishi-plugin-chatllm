@@ -3,6 +3,11 @@ import { resolve } from 'path'
 import { markdownRender } from './render'
 import { Context } from 'koishi'
 import { Config } from './llm'
+import { isRgb, isRgba, isHsl, isHsla, isHex } from 'is-color'
+
+const isColor = (str: string | undefined | null): boolean => {
+  return isRgb(str) || isRgba(str) || isHsl(str) || isHsla(str) || isHex(str)
+}
 
 export const renderImage = async (
   title: string,
@@ -18,6 +23,14 @@ export const renderImage = async (
     resolve(__dirname, './assets/atom-one-dark.css'),
     'utf8'
   )
+
+  const isColorString = isColor(config.pictureConfig?.logoColor)
+  const cardStampClass = isColorString
+    ? ''
+    : `bg-${config.pictureConfig?.logoColor}`
+  const cardStampStyle = isColorString
+    ? `style="background-color: ${config.pictureConfig?.logoColor}"`
+    : ''
 
   const html = `
         <html>
@@ -44,9 +57,9 @@ export const renderImage = async (
           </style>
           <div class="card" id="message">
             <div class="card-stamp">
-              <div class="card-stamp-icon bg-green" id="card-stamp-icon">${
-                config.pictureConfig?.logo
-              }</div>
+              <div class=" card-stamp-icon ${cardStampClass}"
+              ${cardStampStyle}
+              id="card-stamp-icon">${config.pictureConfig?.logo}</div>
             </div>
             <div class="card-body">
               <h3 class="card-title">
