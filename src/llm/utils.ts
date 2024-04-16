@@ -22,3 +22,15 @@ export const truncateMessages = (
 
   return truncatedMessages
 }
+
+export function extractImages(content: string): string[] {
+  const imageRegex = /(https?:\/\/.*?\.(?:png|jpg|jpeg|gif|bmp))/gi
+  const images: string[] = []
+
+  let match: string[]
+  while ((match = imageRegex.exec(content)) !== null) {
+    images.push(match[1])
+  }
+
+  return images
+}

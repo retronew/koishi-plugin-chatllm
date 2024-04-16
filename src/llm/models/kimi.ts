@@ -41,6 +41,9 @@ namespace Kimi {
           .default('https://api.moonshot.cn/v1')
           .description('API 请求地址。'),
         model: Schema.string().default('kimi').description('模型名称。'),
+        parseImages: Schema.boolean()
+          .default(false)
+          .description('是否解析图片内容。'),
         useSearch: Schema.boolean()
           .default(false)
           .description('是否使用搜索引擎来获取回答。'),

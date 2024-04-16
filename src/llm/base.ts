@@ -1,7 +1,7 @@
 import OpenAI from 'openai'
 import { ChatCompletionMessageParam } from 'openai/resources/chat/completions'
-import { truncateMessages } from './utils'
-import { History, Config } from './types'
+import { truncateMessages, extractImages } from './utils'
+import { ImageMessage, History, Config } from './types'
 
 export interface Conversation {
   conversationId?: string
@@ -53,10 +53,30 @@ export class BaseModel {
 
     const messages: History[] = historyEntry.history
 
-    messages.push({
-      role: 'user',
-      content: message,
-    })
+    if (this.config.parseImages) {
+      messages.push({
+        role: 'user',
+        content: [
+          ...extractImages(message).map((i) => {
+            return {
+              type: 'image_url' as const,
+              image_url: {
+                url: i,
+              },
+            }
+          }),
+          {
+            type: 'text',
+            text: message,
+          },
+        ],
+      })
+    } else {
+      messages.push({
+        role: 'user',
+        content: message,
+      })
+    }
 
     try {
       const truncatedMessages = truncateMessages(

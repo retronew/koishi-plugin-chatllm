@@ -1,16 +1,47 @@
+export type ImageUrl = {
+  type: 'image_url'
+  image_url: {
+    url: string
+  }
+}
+
+export type FileUrl = {
+  type: 'file'
+  file_url: {
+    url: string
+  }
+}
+
+export type Text = {
+  type: 'text'
+  text: string
+}
+
+type ImageMessageContent = ImageUrl | Text
+
+type FileMessageContent = FileUrl | Text
+
 export interface History {
   role: string
-  content: string
+  content: string | ImageMessageContent[] | FileMessageContent[]
 }
 
 export interface Config {
   apiKey: string
   endpoint: string
   model?: string
+  parseImages?: boolean
   maxContextLength: number
   forgetTime?: number
   stop?: string[]
   pictureConfig?: { logo: string; logoColor: string }
+}
+
+export interface ImageMessage {
+  type: 'image_url'
+  image_url: {
+    url: string
+  }
 }
 
 export function prefixConfig<T extends Record<string, any>>(
