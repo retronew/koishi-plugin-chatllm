@@ -23,7 +23,7 @@ export const truncateMessages = (
   return truncatedMessages
 }
 
-export function extractImages(content: string): string[] {
+export const extractImages = (content: string): string[] => {
   const imageRegex = /(https?:\/\/.*?\.(?:png|jpg|jpeg|gif|bmp))/gi
   const images: string[] = []
 
@@ -33,4 +33,16 @@ export function extractImages(content: string): string[] {
   }
 
   return images
+}
+
+export const extractFiles = (content: string): string[] => {
+  const fileRegex = /(https?:\/\/.*?\.(?:pdf|docx?|xlsx?|pptx?))/gi
+  const files: string[] = []
+
+  let match: string[]
+  while ((match = fileRegex.exec(content)) !== null) {
+    files.push(match[1])
+  }
+
+  return files
 }

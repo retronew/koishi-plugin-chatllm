@@ -1,7 +1,7 @@
 import OpenAI from 'openai'
 import { ChatCompletionMessageParam } from 'openai/resources/chat/completions'
-import { truncateMessages, extractImages } from './utils'
-import { ImageMessage, History, Config } from './types'
+import { truncateMessages, extractImages, extractFiles } from './utils'
+import { History, Config } from './types'
 
 export interface Conversation {
   conversationId?: string
@@ -54,6 +54,7 @@ export class BaseModel {
     const messages: History[] = historyEntry.history
 
     const images = extractImages(message)
+    const files = extractFiles(message)
     if (this.config.parseImages && images.length) {
       messages.push({
         role: 'user',
@@ -72,6 +73,25 @@ export class BaseModel {
           },
         ],
       })
+    } else if (this.config.parseFiles && files.length) {
+      messages.push({
+        role: 'user',
+        content: [
+          ...files.map((f) => {
+            return {
+              type: 'file' as const,
+              file_url: {
+                url: f,
+              },
+            }
+          }),
+          {
+            type: 'text',
+            text: message,
+          },
+        ],
+      })
+
     } else {
       messages.push({
         role: 'user',

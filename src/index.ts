@@ -1,6 +1,6 @@
 import { Context, Schema, Logger, Session, SessionError, h } from 'koishi'
 import { ChatGPT, Kimi, Claude } from './llm'
-import {} from 'koishi-plugin-puppeteer'
+import { } from 'koishi-plugin-puppeteer'
 import { v4 as uuidv4 } from 'uuid'
 import { renderImage, renderText } from './template'
 import pangu from 'pangu'
@@ -115,7 +115,7 @@ export async function apply(ctx: Context, config: Config) {
         conversations.set(key, { conversationId: response.conversationId })
         // revoke the loading tip message
         session.bot.deleteMessage(session.channelId, tipMessageId)
-        console.log(options?.picture, options?.llm)
+
         const message = await wrapperMessage(
           chat.constructor.name,
           pangu.spacing(response.message),

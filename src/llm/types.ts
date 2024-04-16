@@ -31,6 +31,7 @@ export interface Config {
   endpoint: string
   model?: string
   parseImages?: boolean
+  parseFiles?: boolean
   maxContextLength: number
   forgetTime?: number
   stop?: string[]

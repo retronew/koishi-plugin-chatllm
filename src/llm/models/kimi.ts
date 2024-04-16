@@ -27,7 +27,7 @@ namespace Kimi {
     useSearch: boolean
   }
 
-  export interface Config extends SchemaConfig {}
+  export interface Config extends SchemaConfig { }
 
   export const SchemaConfig: Schema = Schema.object(
     prefixConfig(
@@ -44,6 +44,9 @@ namespace Kimi {
         parseImages: Schema.boolean()
           .default(false)
           .description('是否解析图片内容。'),
+        parseFiles: Schema.boolean()
+          .default(false)
+          .description('是否解析文档内容。'),
         useSearch: Schema.boolean()
           .default(false)
           .description('是否使用搜索引擎来获取回答。'),
