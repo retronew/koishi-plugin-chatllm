@@ -47,6 +47,9 @@ namespace ChatGPT {
         model: Schema.string()
           .default('gpt-3.5-turbo')
           .description('模型名称。'),
+        parseImages: Schema.boolean()
+          .default(false)
+          .description('是否解析图片内容。'),
         maxContextLength: Schema.number()
           .default(4000)
           .description('最大上下文长度，用于限制对话历史记录的长度。'),
