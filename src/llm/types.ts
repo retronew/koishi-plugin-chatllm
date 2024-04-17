@@ -38,13 +38,6 @@ export interface Config {
   pictureConfig?: { logo: string; logoColor: string }
 }
 
-export interface ImageMessage {
-  type: 'image_url'
-  image_url: {
-    url: string
-  }
-}
-
 export function prefixConfig<T extends Record<string, any>>(
   config: T,
   prefix: string

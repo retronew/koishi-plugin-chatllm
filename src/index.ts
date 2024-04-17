@@ -1,6 +1,8 @@
 import { Context, Schema, Logger, Session, SessionError, h } from 'koishi'
 import { ChatGPT, Kimi, Claude } from './llm'
-import { } from 'koishi-plugin-puppeteer'
+import { MixedInput } from './types'
+import { getFileMD5FromUrl, QQPicUrl } from './utils'
+import {} from 'koishi-plugin-puppeteer'
 import { v4 as uuidv4 } from 'uuid'
 import { renderImage, renderText } from './template'
 import pangu from 'pangu'
@@ -16,12 +18,20 @@ export type Interaction = (typeof interaction)[number]
 
 export interface Config extends ChatGPT.SchemaConfig, Kimi.SchemaConfig {
   // 公共配置
+  defaultLLM: string
+  isQQPlatform: boolean
   triggerWord: string
   interaction: Interaction
 }
 
 export const Config: Schema<Config> = Schema.intersect([
   Schema.object({
+    defaultLLM: Schema.union(['chatgpt', 'kimi', 'claude'])
+      .default('chatgpt')
+      .description('默认使用的大语言模型。'),
+    isQQPlatform: Schema.boolean()
+      .default(false)
+      .description('是否为 QQ 平台。'),
     triggerWord: Schema.string()
       .default('chat')
       .description('触发机器人回答的关键词。'),
@@ -74,31 +84,65 @@ export async function apply(ctx: Context, config: Config) {
     return renderText(message)
   }
 
+  const extractMessage = async (session: Session): Promise<MixedInput> => {
+    const images = h
+      .select(session.elements, 'img')
+      .map(async (element) => {
+        const src = element.attrs?.src
+        if (!src) return null
+        if (config.isQQPlatform) {
+          const md5 = await getFileMD5FromUrl(src)
+          return QQPicUrl(md5)
+        }
+        return element.attrs?.src
+      })
+      .filter(Boolean)
+
+    return {
+      text: h.select(session.elements, 'text').toString(),
+      images: await Promise.all(images),
+    }
+  }
+
   ctx
     .command(config.triggerWord + ' <message:text>')
-    .option('llm', '-l <value>', { fallback: 'chatgpt' })
+    .option('llm', '-l <value>', { fallback: config.defaultLLM })
     .option('llm', '--chatgpt', { value: 'chatgpt' })
     .option('llm', '--kimi', { value: 'kimi' })
     .option('llm', '--claude', { value: 'claude' })
     .option('reset', '-r')
     .option('picture', '-p')
-    .action(async ({ options, session }, input) => {
+    .option('version', '-v')
+    .action(async ({ options, session }, input): Promise<any> => {
       const key = getContextKey(session, config)
+      const mixedInput = await extractMessage(session)
+      const chat = llm[options?.llm || config.defaultLLM]
+
+      if (!chat) throw new Error(session.text('.llm-not-found'))
 
       let quoteId = session.messageId
 
+      if (options?.version) {
+        return `${options?.llm}: ${
+          llm[options?.llm || config.defaultLLM]?.config?.model
+        }`
+      }
+
       if (options?.reset) {
         conversations.delete(key)
+        chat.forgetHistory(key)
         return session.text('.reset-success')
       }
 
       input = input?.trim()
       if (!input) {
         await session.send(session.text('.expect-prompt'))
-        input = await session.prompt((session) => {
+        const prompt = await session.prompt((session) => {
           quoteId = session.messageId
-          return h.select(session.elements, 'text').toString()
+          return extractMessage(session)
         })
+        mixedInput.text = input
+        mixedInput.images = prompt.images
       }
 
       try {
@@ -107,9 +151,12 @@ export async function apply(ctx: Context, config: Config) {
           conversationId: uuidv4(),
         }
         const [tipMessageId] = await session.send(session.text('.loading'))
-        const chat = llm[options?.llm || 'chatgpt']
+
         const response = await chat.generateResponse({
-          message: input,
+          message: {
+            text: input,
+            images: mixedInput.images,
+          },
           conversationId,
         })
         conversations.set(key, { conversationId: response.conversationId })

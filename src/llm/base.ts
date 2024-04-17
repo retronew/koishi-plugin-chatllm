@@ -2,10 +2,11 @@ import OpenAI from 'openai'
 import { ChatCompletionMessageParam } from 'openai/resources/chat/completions'
 import { truncateMessages, extractImages, extractFiles } from './utils'
 import { History, Config } from './types'
+import { MixedInput } from '../types'
 
 export interface Conversation {
   conversationId?: string
-  message: string
+  message: MixedInput
   history?: History[]
   config: Config
 }
@@ -29,10 +30,12 @@ export class BaseModel {
     this.config = config
   }
 
-  async generateResponse(
-    conversation: Conversation
-  ): Promise<Partial<Conversation>> {
-    const { message } = conversation
+  forgetHistory(conversationId: string) {
+    this.historyPool.delete(conversationId)
+  }
+
+  async generateResponse(conversation: Conversation): Promise<Partial<any>> {
+    const { text: message, images: messageImages } = conversation.message
     let { conversationId } = conversation
 
     if (conversationId && !this.historyPool.has(conversationId))
@@ -53,7 +56,7 @@ export class BaseModel {
 
     const messages: History[] = historyEntry.history
 
-    const images = extractImages(message)
+    const images = [...extractImages(message), ...messageImages]
     const files = extractFiles(message)
     if (this.config.parseImages && images.length) {
       messages.push({
@@ -91,7 +94,6 @@ export class BaseModel {
           },
         ],
       })
-
     } else {
       messages.push({
         role: 'user',

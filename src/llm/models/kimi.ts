@@ -27,7 +27,7 @@ namespace Kimi {
     useSearch: boolean
   }
 
-  export interface Config extends SchemaConfig { }
+  export interface Config extends SchemaConfig {}
 
   export const SchemaConfig: Schema = Schema.object(
     prefixConfig(

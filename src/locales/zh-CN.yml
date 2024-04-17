@@ -12,3 +12,4 @@ commands:
       loading: 查询中，请耐心等待...
       reset-success: 对话已重置。
       unknown-error: 发生未知错误，请稍后再试。
+      llm-not-found: 未知的大模型。

@@ -12,3 +12,4 @@ commands:
       loading: Querying, please wait...
       reset-success: Conversation has been reset.
       unknown-error: An unknown error occurred. Please try again later.
+      llm-not-found: Unknown large language model.
