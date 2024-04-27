@@ -178,10 +178,9 @@ export async function apply(ctx: Context, config: Config) {
         const historyEntry = chat.getHistory(conversationId)
         const getLastChat = historyEntry
           ? () => {
-              const history: History[] = getLastArrayEntries(
-                historyEntry.history,
-                2
-              )
+              const history: History[] = historyEntry.history
+                ? getLastArrayEntries(historyEntry.history, 2)
+                : []
               return {
                 model: currentModel,
                 history,
