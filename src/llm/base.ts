@@ -30,13 +30,17 @@ export class BaseModel {
     this.config = config
   }
 
+  getHistory(conversationId: string) {
+    return this.historyPool.get(conversationId)
+  }
+
   forgetHistory(conversationId: string) {
     this.historyPool.delete(conversationId)
   }
 
   async generateResponse(conversation: Conversation): Promise<Partial<any>> {
     const { text: message, images: messageImages } = conversation.message
-    let { conversationId } = conversation
+    let { conversationId, history } = conversation
 
     if (conversationId && !this.historyPool.has(conversationId))
       this.historyPool.set(conversationId, {
@@ -54,7 +58,7 @@ export class BaseModel {
 
     historyEntry.lastAccessed = currentTime
 
-    const messages: History[] = historyEntry.history
+    const messages: History[] = [...historyEntry.history, ...history]
 
     const images = [...extractImages(message), ...messageImages]
     const files = extractFiles(message)
@@ -118,6 +122,7 @@ export class BaseModel {
         role: 'assistant',
         content: responseMessage,
       })
+      historyEntry.history = messages
 
       return {
         conversationId,

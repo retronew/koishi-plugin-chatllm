@@ -1,7 +1,7 @@
 import { Context, Schema, Logger, Session, SessionError, h } from 'koishi'
-import { ChatGPT, Kimi, Claude } from './llm'
+import { ChatGPT, Kimi, Claude, History } from './llm'
 import { MixedInput } from './types'
-import { getFileMD5FromUrl, QQPicUrl } from './utils'
+import { getLastArrayEntries, getFileMD5FromUrl, QQPicUrl } from './utils'
 import {} from 'koishi-plugin-puppeteer'
 import { v4 as uuidv4 } from 'uuid'
 import { renderImage, renderText } from './template'
@@ -48,7 +48,16 @@ export const Config: Schema<Config> = Schema.intersect([
   Claude.SchemaConfig,
 ])
 
-const conversations = new Map<string, { conversationId: string }>()
+const conversations = new Map<
+  string,
+  {
+    conversationId: string
+    lastChat?: {
+      model: string
+      history: History[]
+    }
+  }
+>()
 
 export async function apply(ctx: Context, config: Config) {
   // define i18n
@@ -110,13 +119,15 @@ export async function apply(ctx: Context, config: Config) {
     .option('llm', '--chatgpt', { value: 'chatgpt' })
     .option('llm', '--kimi', { value: 'kimi' })
     .option('llm', '--claude', { value: 'claude' })
+    .option('continue', '-c')
     .option('reset', '-r')
     .option('picture', '-p')
     .option('version', '-v')
     .action(async ({ options, session }, input): Promise<any> => {
       const key = getContextKey(session, config)
       const mixedInput = await extractMessage(session)
-      const chat = llm[options?.llm || config.defaultLLM]
+      const currentModel = options?.llm || config.defaultLLM
+      const chat = llm[currentModel]
 
       if (!chat) throw new Error(session.text('.llm-not-found'))
 
@@ -147,7 +158,7 @@ export async function apply(ctx: Context, config: Config) {
 
       try {
         // send a message and wait for the response
-        const { conversationId } = conversations.get(key) ?? {
+        const { conversationId, lastChat } = conversations.get(key) ?? {
           conversationId: uuidv4(),
         }
         const [tipMessageId] = await session.send(session.text('.loading'))
@@ -157,9 +168,31 @@ export async function apply(ctx: Context, config: Config) {
             text: input,
             images: mixedInput.images,
           },
+          history:
+            options?.continue && lastChat && lastChat.model !== currentModel
+              ? lastChat.history
+              : [],
           conversationId,
         })
-        conversations.set(key, { conversationId: response.conversationId })
+
+        const historyEntry = chat.getHistory(conversationId)
+        const getLastChat = historyEntry
+          ? () => {
+              const history: History[] = getLastArrayEntries(
+                historyEntry.history,
+                2
+              )
+              return {
+                model: currentModel,
+                history,
+              }
+            }
+          : undefined
+        conversations.set(key, {
+          conversationId: conversationId,
+          lastChat: getLastChat?.() ?? undefined,
+        })
+
         // revoke the loading tip message
         session.bot.deleteMessage(session.channelId, tipMessageId)
 
