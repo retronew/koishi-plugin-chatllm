@@ -10,7 +10,7 @@ export const truncateMessages = (
   // 从后往前遍历历史记录
   for (let i = messages.length - 1; i >= 0; i--) {
     const message = messages[i]
-    const messageLength = message.content.length
+    const messageLength = (message?.content ?? '').length
 
     if (totalLength + messageLength > maxContextLength) {
       break
