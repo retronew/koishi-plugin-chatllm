@@ -42,7 +42,7 @@
     "markdown-it": "^14.1.0",
     "openai": "^4.33.1",
     "pangu": "^4.0.7",
-    "uuid": "^9.0.1"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@types/is-color": "^1",
